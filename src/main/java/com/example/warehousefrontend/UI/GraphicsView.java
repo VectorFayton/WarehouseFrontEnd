@@ -1,4 +1,4 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.UI;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
