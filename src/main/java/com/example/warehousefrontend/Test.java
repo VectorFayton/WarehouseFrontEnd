@@ -1,95 +1,112 @@
 package com.example.warehousefrontend;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import com.example.warehousefrontend.varianceOfProduct.Product;
+import com.example.warehousefrontend.varianceOfProduct.ProductIDArriveDateCount;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.ArrayList;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Test {
-    public static void main(String[] args) {
-        String jsonString = "[{\"id\":1,\"name\":\"Laptop\",\"price\":1000,\"categoryId\":1},{\"id\":2,\"name\":\"Smartphone\",\"price\":500,\"categoryId\":2},{\"id\":3,\"name\":\"Tablet\",\"price\":300,\"categoryId\":3},{\"id\":4,\"name\":\"Desk Chair\",\"price\":150,\"categoryId\":4},{\"id\":5,\"name\":\"Office Desk\",\"price\":200,\"categoryId\":5},{\"id\":6,\"name\":\"Printer\",\"price\":120,\"categoryId\":6},{\"id\":7,\"name\":\"Scanner\",\"price\":80,\"categoryId\":7},{\"id\":8,\"name\":\"Coffee Maker\",\"price\":50,\"categoryId\":8},{\"id\":9,\"name\":\"Toaster\",\"price\":30,\"categoryId\":9},{\"id\":10,\"name\":\"Bluetooth Speaker\",\"price\":70,\"categoryId\":10},{\"id\":11,\"name\":\"Headphones\",\"price\":100,\"categoryId\":11},{\"id\":12,\"name\":\"Running Shoes\",\"price\":80,\"categoryId\":12},{\"id\":13,\"name\":\"Backpack\",\"price\":40,\"categoryId\":13},{\"id\":14,\"name\":\"Sunglasses\",\"price\":25,\"categoryId\":14},{\"id\":15,\"name\":\"Watch\",\"price\":150,\"categoryId\":15},{\"id\":16,\"name\":\"IPhone\",\"price\":1000,\"categoryId\":2},{\"id\":17,\"name\":\"Samsung s24\",\"price\":1200,\"categoryId\":2}]\n";
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ArrayList<Person> productList = new ArrayList<>();
-            JsonNode rootNode = objectMapper.readTree(jsonString);
-
-                    for (JsonNode productNode : rootNode) {
-                        Person product = objectMapper.readValue(productNode.traverse(), Person.class);
-                        System.out.println(product);
-                        productList.add(product);
-                        System.out.println(product.toString());
-                    }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void main(String[] args) throws IOException {
+        List<Product> products = getWarehouseInfo();
+        for (Product product : products) {
+            System.out.println(product);
         }
     }
-}
 
-class Person {
-        @JsonProperty("id")
-        private int id;
-    @JsonProperty("name")
-    private String name;
-
-    public Person(@JsonProperty("id") int id, @JsonProperty("name") String name, @JsonProperty("price") double price, @JsonProperty("categoryId") int categoryId) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.categoryId = categoryId;
+    public static List<Product> getWarehouseInfo() throws IOException {
+        List<Product> products = new ArrayList<>();
+        String jsonResponse = getResponseFromURL("http://localhost:8080/warehouse");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+        for (JsonNode productNode : jsonNode) {
+            Product product = objectMapper.treeToValue(productNode, Product.class);
+            products.add(product);
+        }
+        return products;
     }
 
-    @JsonProperty("price")
-    private double price;
+    public static void arriveProduct(String id, String date, String count) throws IOException {
+        if (id.isEmpty() || count.isEmpty() || date.isEmpty()) {
+            System.out.println("Please fill in all fields.");
+            return;
+        }
 
-    @JsonProperty("categoryId")
-    private int categoryId;
-    public int getId() {
-        return id;
+        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
+        sendProductInfoToURL("http://localhost:8080/arrivedProducts/arrive", product);
     }
 
-    public void setId(@JsonProperty("id") int id) {
-        this.id = id;
+    public static void deadProduct(String id, String date, String count) throws IOException {
+        if (id.isEmpty() || count.isEmpty() || date.isEmpty()) {
+            System.out.println("Please fill in all fields.");
+            return;
+        }
+
+        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
+        sendProductInfoToURL("http://localhost:8080/deadProducts/dead", product);
     }
 
-    public String getName() {
-        return name;
+    private static String getResponseFromURL(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+//        connection.setRequestProperty("Content-Type", "application/json");
+        connection.connect();
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new RuntimeException("Failed to retrieve data. Response Code: " + responseCode);
+        }
+
+        String jsonResponse;
+        try (Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8)) {
+            jsonResponse = scanner.useDelimiter("\\A").next();
+        }
+
+        connection.disconnect();
+        return jsonResponse;
     }
 
-    public void setName(@JsonProperty("name") String name) {
-        this.name = name;
-    }
+    private static void sendProductInfoToURL(String urlString, Product product) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequest;
+        try {
+            jsonRequest = objectMapper.writeValueAsString(product);
+            System.out.println(jsonRequest);
 
-    public double getPrice() {
-        return price;
-    }
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
 
-    public void setPrice(@JsonProperty("price") double price) {
-        this.price = price;
-    }
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonRequest.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
 
-    public int getCategoryId() {
-        return categoryId;
-    }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.out.println("Product information sent successfully!");
+            } else {
+                System.out.println("Failed to send product information. Response Code: " + responseCode);
+            }
 
-    public void setCategoryId(@JsonProperty("categoryId") int categoryId) {
-        this.categoryId = categoryId;
-    }
-
-
-
-        // Getters and setters for the fields
-
-    // Getters and Setters
-
-    @Override
-    public String toString() {
-        return "Person{" +
-                "id='" + id + '\'' +
-                "name='" + name + '\'' +
-                ", price=" + price +
-                ", categoryId='" + categoryId + '\'' +
-                '}';
+            connection.disconnect();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }

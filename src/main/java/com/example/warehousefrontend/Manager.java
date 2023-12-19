@@ -14,13 +14,14 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class Manager {
+    JsonAdapter jsonAdapter = new Json_ObjectAdapter();
     public ObservableList getAllProducts() throws IOException {
         StringBuilder response = Connection("http://localhost:8080/warehouse/getAllProducts", "GET");
         ObservableList<Product> products = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response.toString());
-            products = FXCollections.observableArrayList(FXMLConverter(rootNode, "Price"));
+            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Price"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,7 +123,7 @@ public class Manager {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response.toString());
 
-            list = FXCollections.observableArrayList(FXMLConverter(rootNode, "Price"));
+            list = FXCollections.observableArrayList(JsonConverter(rootNode, "Price"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,25 +144,21 @@ public class Manager {
         reader.close();
         return response;
     }
-    public ArrayList<Product> FXMLConverter(JsonNode rootNode, String productDetailType) throws IOException {
+    public ArrayList<Product> JsonConverter(JsonNode rootNode, String productDetailType) throws IOException {
         ArrayList<Product> productList = new ArrayList<>();
         switch (productDetailType) {
             case "Price":
-                ObjectMapper objectMapper = new ObjectMapper();
                 for (JsonNode productNode : rootNode) {
-                    Product product = objectMapper.readValue(productNode.traverse(), ProductIDNameCategoryPrice.class);
+                    Product product = jsonAdapter.jsonToObject(productNode, ProductIDNameCategoryPrice.class);
                     System.out.println(product);
                     productList.add(product);
-                    System.out.println(product.toString());
                 }
             break;
             case "Count":
                 for (JsonNode productNode : rootNode) {
-                    ObjectMapper objectMappers = new ObjectMapper();
-                    Product product = objectMappers.readValue(productNode.traverse(), ProductIDNameCount.class);
+                    Product product = jsonAdapter.jsonToObject(productNode, ProductIDNameCount.class);
                     System.out.println(product);
                     productList.add(product);
-                    System.out.println(product.toString());
                 }
                 break;
         }
@@ -176,7 +173,7 @@ public class Manager {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response.toString());
-            products = FXCollections.observableArrayList(FXMLConverter(rootNode, "Count"));
+            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Count"));
         } catch (IOException e) {
             e.printStackTrace();
         }
