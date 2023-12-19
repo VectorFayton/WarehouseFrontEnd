@@ -1,6 +1,7 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.UI;
 
 
+import com.example.warehousefrontend.GraphicsView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;

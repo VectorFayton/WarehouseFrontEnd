@@ -1,5 +1,6 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.UI;
 
+import com.example.warehousefrontend.Manager;
 import com.example.warehousefrontend.varianceOfProduct.Product;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -11,7 +12,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
-class WarehouseTableView extends VBox {
+public class WarehouseTableView extends VBox {
     private TableView<Product> tableView;
     Manager manager = new Manager();
     ObservableList<Product> products = manager.getWarehouseInfo();

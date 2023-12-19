@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-class GraphicsView extends VBox {
+public class GraphicsView extends VBox {
     private static final String serverURL = "http://localhost:8080/warehouse/getAllProducts";
     URL url;
     HttpURLConnection httpURLConnection;
