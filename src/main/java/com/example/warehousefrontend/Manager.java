@@ -188,9 +188,7 @@ public class Manager {
         }
 
         Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequest = objectMapper.writeValueAsString(product);
+        String jsonRequest = jsonAdapter.objectToJson(product);
         System.out.println(jsonRequest);
 
         URL url = new URL("http://localhost:8080/arrivedProducts/arrive");
@@ -219,36 +217,28 @@ public class Manager {
             System.out.println("Please fill in all fields.");
             return;
         }
+        Product product = new ProductIDDeadDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
+        String jsonRequest = jsonAdapter.objectToJson(product);
+        System.out.println(jsonRequest);
 
-        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
+        URL url = new URL("http://localhost:8080/deadProducts/dead");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequest;
-        try {
-            jsonRequest = objectMapper.writeValueAsString(product);
-            System.out.println(jsonRequest);
-
-            URL url = new URL("http://localhost:8080/deadProducts/dead");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
-
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonRequest.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Product deleted successfully!");
-            } else {
-                System.out.println("Failed to delete product. Response Code: " + responseCode);
-            }
-
-            connection.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonRequest.getBytes("utf-8");
+            os.write(input, 0, input.length);
         }
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            System.out.println("Product deleted successfully!");
+        } else {
+            System.out.println("Failed to delete product. Response Code: " + responseCode);
+        }
+
+        connection.disconnect();
     }
 }
