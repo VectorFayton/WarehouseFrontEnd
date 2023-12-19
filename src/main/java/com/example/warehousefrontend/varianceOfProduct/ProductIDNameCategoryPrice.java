@@ -1,4 +1,4 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.varianceOfProduct;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

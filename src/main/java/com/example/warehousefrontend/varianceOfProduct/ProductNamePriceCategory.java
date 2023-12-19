@@ -1,4 +1,4 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.varianceOfProduct;
 
 public class ProductNamePriceCategory implements Product {
     private String name;

@@ -6,4 +6,6 @@ module com.example.warehousefrontend {
     opens com.example.warehousefrontend to com.fasterxml.jackson.databind, javafx.fxml;
 
     exports com.example.warehousefrontend;
+    exports com.example.warehousefrontend.varianceOfProduct;
+    opens com.example.warehousefrontend.varianceOfProduct to com.fasterxml.jackson.databind, javafx.fxml;
 }

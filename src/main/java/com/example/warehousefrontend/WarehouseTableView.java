@@ -1,6 +1,6 @@
 package com.example.warehousefrontend;
 
-import javafx.collections.FXCollections;
+import com.example.warehousefrontend.varianceOfProduct.Product;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;

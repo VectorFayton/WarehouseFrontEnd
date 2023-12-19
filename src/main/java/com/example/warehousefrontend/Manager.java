@@ -1,5 +1,6 @@
 package com.example.warehousefrontend;
 
+import com.example.warehousefrontend.varianceOfProduct.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
@@ -11,8 +12,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Manager {
     public ObservableList getAllProducts() throws IOException {

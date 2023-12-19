@@ -1,8 +1,8 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.varianceOfProduct;
 
-public class ProductIDDeadDateCount implements Product{
+public class ProductIDArriveDateCount implements Product{
     int productId;
-    String deadDate;
+    String arriveDate;
     int count;
     public int getProductId() {
         return productId;
@@ -12,12 +12,12 @@ public class ProductIDDeadDateCount implements Product{
         this.productId = productId;
     }
 
-    public String getDeadDate() {
-        return deadDate;
+    public String getArriveDate() {
+        return arriveDate;
     }
 
-    public void setDeadDate(String deadDate) {
-        this.deadDate = deadDate;
+    public void setArriveDate(String arriveDate) {
+        this.arriveDate = arriveDate;
     }
 
     public int getCount() {
@@ -27,20 +27,20 @@ public class ProductIDDeadDateCount implements Product{
     public void setCount(int count) {
         this.count = count;
     }
-    public ProductIDDeadDateCount(int id, String date, int count) {
+    public ProductIDArriveDateCount(int id, String date, int count) {
         this.productId = id;
-        this.deadDate = date;
+        this.arriveDate = date;
         this.count = count;
     }
     @Override
     public Product clone(){
-        return new ProductIDArriveDateCount(productId, deadDate, count);
+        return new ProductIDArriveDateCount(productId, arriveDate, count);
     }
     @Override
     public String toString() {
         return "ProductIDDateCount{" +
                 "productId=" + productId +
-                ", deadDate='" + deadDate + '\'' +
+                ", arriveDate='" + arriveDate + '\'' +
                 ", count=" + count +
                 '}';
     }
