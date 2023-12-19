@@ -1,7 +1,6 @@
 package com.example.warehousefrontend;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +12,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Manager {
@@ -37,13 +35,10 @@ public class Manager {
             return;
         }
 
-        Map<String, Object> productData = new HashMap<>();
-        productData.put("name", name);
-        productData.put("price", Double.parseDouble(price));
-        productData.put("categoryId", Integer.parseInt(categoryId));
+        Product product = new ProductNamePriceCategory(name, Double.parseDouble(price), Integer.parseInt(categoryId));
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequest = objectMapper.writeValueAsString(productData);
+        String jsonRequest = objectMapper.writeValueAsString(product);
         System.out.println(jsonRequest);
 
         URL url = new URL("http://localhost:8080/warehouse/createProduct");
@@ -196,13 +191,10 @@ public class Manager {
             return;
         }
 
-        Map<String, Object> productData = new HashMap<>();
-        productData.put("productId", id);
-        productData.put("arriveDate", date);
-        productData.put("count", Integer.parseInt(count));
+        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequest = objectMapper.writeValueAsString(productData);
+        String jsonRequest = objectMapper.writeValueAsString(product);
         System.out.println(jsonRequest);
 
         URL url = new URL("http://localhost:8080/arrivedProducts/arrive");
@@ -232,15 +224,12 @@ public class Manager {
             return;
         }
 
-        Map<String, Object> productData = new HashMap<>();
-        productData.put("productId", id);
-        productData.put("deadDate", date);
-        productData.put("count", Integer.parseInt(count));
+        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequest;
         try {
-            jsonRequest = objectMapper.writeValueAsString(productData);
+            jsonRequest = objectMapper.writeValueAsString(product);
             System.out.println(jsonRequest);
 
             URL url = new URL("http://localhost:8080/deadProducts/dead");
