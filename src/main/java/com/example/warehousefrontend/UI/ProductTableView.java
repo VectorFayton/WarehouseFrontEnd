@@ -100,7 +100,6 @@ class ProductTableView extends VBox {
         categoryField.setPromptText("example: 21");
         searchField.setPromptText("name of product...");
 
-        HBox buttonBox = new HBox(10, addButton, removeButton);
         HBox searchBox = new HBox(10, searchField, searchButton, sortAscButton, sortDescButton);
 
         TableColumn<Product, Integer> productIdColumn = new TableColumn<>("Product ID");

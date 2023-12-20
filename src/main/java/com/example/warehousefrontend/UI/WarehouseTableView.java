@@ -7,7 +7,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -62,8 +61,6 @@ public class WarehouseTableView extends VBox {
         idField.setPromptText("example: 1");
         dateField.setPromptText("example: 2023-01-10");
         countField.setPromptText("example: 990");
-
-        HBox buttonBox = new HBox(10, addButton, removeButton);
 
         TableColumn<Product, Integer> productIdColumn = new TableColumn<>("Product ID");
         TableColumn<Product, String> productNameColumn = new TableColumn<>("Product Name");
