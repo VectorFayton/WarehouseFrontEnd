@@ -1,11 +1,11 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.Adapters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Json_ObjectAdapter implements JsonAdapter{
+public class JsonObjectAdapter implements JsonAdapter{
     private final ObjectMapper objectMapper;
-    public Json_ObjectAdapter(){
+    public JsonObjectAdapter(){
         this.objectMapper = new ObjectMapper();
     }
 

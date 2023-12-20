@@ -1,5 +1,7 @@
 package com.example.warehousefrontend;
 
+import com.example.warehousefrontend.Adapters.JsonAdapter;
+import com.example.warehousefrontend.Adapters.JsonObjectAdapter;
 import com.example.warehousefrontend.varianceOfProduct.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,14 +9,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
 public class Manager {
-    JsonAdapter jsonAdapter = new Json_ObjectAdapter();
+    JsonAdapter jsonAdapter = new JsonObjectAdapter();
     public ObservableList getAllProducts() throws IOException {
         StringBuilder response = Connection("http://localhost:8080/warehouse/getAllProducts", "GET");
         ObservableList<Product> products = null;

@@ -1,4 +1,4 @@
-package com.example.warehousefrontend;
+package com.example.warehousefrontend.Adapters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
