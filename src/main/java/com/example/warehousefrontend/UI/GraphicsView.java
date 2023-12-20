@@ -39,8 +39,7 @@ public class GraphicsView extends VBox {
         grid.setVgap(4);
         grid.setPadding(new Insets(5));
 
-        Label countDeathLabel = new Label("Amount of seized products:");
-        Label countArrivedLabel = new Label("Amount of arrived products:");
+        Label countLabel = new Label("Amount products:");
         Label statusTable = new Label("Seized products");
         statusTable.setStyle("-fx-font: 24 arial;");
 
@@ -48,14 +47,13 @@ public class GraphicsView extends VBox {
         Button countDeathButton = new Button("Show seized products");
         Button countArrivedButton = new Button("Show arrived products");
 
-        TextField countDeathField = new TextField();
-        TextField countArrivedField = new TextField();
+        TextField countField = new TextField();
 
         countDeathButton.setOnAction(e -> {
             try {
                 statusTable.setText("Seized products");
                 products = manager.getCountProducts("deadProducts");
-                countDeathField.setText(manager.getTotalCountProducts("amountDead"));
+                countField.setText(manager.getTotalCountProducts("amountDead"));
                 tableView.setItems(products);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -65,17 +63,15 @@ public class GraphicsView extends VBox {
             try {
                 statusTable.setText("Arrived products");
                 products = manager.getCountProducts("arrivedProducts");
-                countArrivedField.setText(manager.getTotalCountProducts("amountArrive"));
+                countField.setText(manager.getTotalCountProducts("amountArrive"));
                 tableView.setItems(products);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
 
-        countDeathField.setText(manager.getTotalCountProducts("amountDead"));
-        countDeathField.setEditable(false);
-        countArrivedField.setText(manager.getTotalCountProducts("amountArrive"));
-        countArrivedField.setEditable(false);
+        countField.setText(manager.getTotalCountProducts("amountDead"));
+        countField.setEditable(false);
 
         TableColumn<Product, Integer> idColumn = new TableColumn<>("ID");
         TableColumn<Product, Integer> productIdColumn = new TableColumn<>("Product ID");
@@ -95,9 +91,8 @@ public class GraphicsView extends VBox {
 
         tableView.setItems(products);
 
-        grid.addRow(0, countDeathLabel, countDeathField);
-        grid.addRow(1, countArrivedLabel, countArrivedField);
-        grid.addRow(2, countDeathButton, countArrivedButton);
+        grid.addRow(0, countLabel, countField);
+        grid.addRow(1, countDeathButton, countArrivedButton);
 
 
         getChildren().add(statusTable);

@@ -27,7 +27,6 @@ public class Manager {
         }
         return products;
     }
-
     public void addProduct(String name, String price, String categoryId) throws IOException {
 
         if (name.isEmpty() || price.isEmpty() || categoryId.isEmpty()) {
@@ -51,17 +50,8 @@ public class Manager {
             byte[] input = jsonRequest.getBytes("utf-8");
             os.write(input, 0, input.length);
         }
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpsURLConnection.HTTP_OK) {
-            System.out.println("Product added successfully!");
-        } else {
-            System.out.println("Failed to add product. Response Code: " + responseCode);
-        }
-
         connection.disconnect();
     }
-
     public void removeProduct(String ID) throws IOException {
         int selectedProductId = Integer.valueOf(ID);
         System.out.println("ID: " + selectedProductId);
@@ -70,17 +60,8 @@ public class Manager {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("DELETE");
 
-        int responseCode = connection.getResponseCode();
-        System.out.println();
-        if (responseCode == HttpsURLConnection.HTTP_OK) {
-            System.out.println("Product removed successfully!");
-        } else {
-            System.out.println("Failed to remove product. Response Code: " + responseCode);
-        }
-
         connection.disconnect();
     }
-
     public void searchProducts(TableView<Product> tableView, ObservableList<Product> products, String searchTerm) throws IOException {
         int toID = Integer.parseInt(searchTerm);
         StringBuilder response = Connection("http://localhost:8080/warehouse/getProduct/" + toID, "GET");
@@ -112,7 +93,6 @@ public class Manager {
             e.printStackTrace();
         }
     }
-
     public ObservableList sortProduct(String sortType) throws IOException {
         StringBuilder response = Connection("http://localhost:8080/warehouse/sort?sort=" + sortType, "GET");
 
@@ -130,7 +110,87 @@ public class Manager {
         }
         return list;
     }
+    public ObservableList getWarehouseInfo() throws IOException {
+        StringBuilder response = Connection("http://localhost:8080/warehouse", "GET");
 
+        System.out.println(response.toString());
+        ObservableList<Product> products = null;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.toString());
+            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Count"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+    public void arriveProduct(String id, String date, String count) throws IOException {
+
+        if (id.isEmpty() || count.isEmpty() || date.isEmpty()) {
+            System.out.println("Please fill in all fields.");
+            return;
+        }
+        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
+        String jsonRequest = jsonAdapter.objectToJson(product);
+        System.out.println(jsonRequest);
+
+        URL url = new URL("http://localhost:8080/arrivedProducts/arrive");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonRequest.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+        connection.disconnect();
+    }
+    public void deadProduct(String id, String date, String count) throws IOException {
+        if (id.isEmpty() || count.isEmpty() || date.isEmpty()) {
+            System.out.println("Please fill in all fields.");
+            return;
+        }
+        Product product = new ProductIDDeadDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
+        String jsonRequest = jsonAdapter.objectToJson(product);
+        System.out.println(jsonRequest);
+
+        URL url = new URL("http://localhost:8080/deadProducts/dead");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonRequest.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+        connection.disconnect();
+    }
+    public ObservableList getCountProducts(String type) throws IOException {
+        StringBuilder response = Connection("http://localhost:8080/" + type, "GET");
+
+        System.out.println(response.toString());
+        ObservableList<Product> products = null;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.toString());
+            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Amount"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+    public String getTotalCountProducts(String type) throws IOException {
+        StringBuilder response = Connection("http://localhost:8080/analytics/" + type, "GET");
+        Product product = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(response.toString());
+        product = jsonAdapter.jsonToObject(rootNode, ProductTotalCount.class);
+        return product.toString();
+    }
     public StringBuilder Connection(String URL, String requestMethod) throws IOException {
         URL url = new URL(URL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -153,7 +213,7 @@ public class Manager {
                     System.out.println(product);
                     productList.add(product);
                 }
-            break;
+                break;
             case "Count":
                 for (JsonNode productNode : rootNode) {
                     Product product = jsonAdapter.jsonToObject(productNode, ProductIDNameCount.class);
@@ -170,123 +230,5 @@ public class Manager {
                 break;
         }
         return productList;
-    }
-    public ObservableList getWarehouseInfo() throws IOException {
-        StringBuilder response = Connection("http://localhost:8080/warehouse", "GET");
-
-        System.out.println(response.toString());
-        ObservableList<Product> products = null;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response.toString());
-            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Count"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return products;
-    }
-
-    public void arriveProduct(String id, String date, String count) throws IOException {
-
-        if (id.isEmpty() || count.isEmpty() || date.isEmpty()) {
-            System.out.println("Please fill in all fields.");
-            return;
-        }
-
-        Product product = new ProductIDArriveDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
-        String jsonRequest = jsonAdapter.objectToJson(product);
-        System.out.println(jsonRequest);
-
-        URL url = new URL("http://localhost:8080/arrivedProducts/arrive");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-
-        try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonRequest.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpsURLConnection.HTTP_OK) {
-            System.out.println("Product added successfully!");
-        } else {
-            System.out.println("Failed to add product. Response Code: " + responseCode);
-        }
-
-        connection.disconnect();
-    }
-
-    public void deadProduct(String id, String date, String count) throws IOException {
-        if (id.isEmpty() || count.isEmpty() || date.isEmpty()) {
-            System.out.println("Please fill in all fields.");
-            return;
-        }
-        Product product = new ProductIDDeadDateCount(Integer.parseInt(id), date, Integer.parseInt(count));
-        String jsonRequest = jsonAdapter.objectToJson(product);
-        System.out.println(jsonRequest);
-
-        URL url = new URL("http://localhost:8080/deadProducts/dead");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-
-        try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonRequest.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            System.out.println("Product deleted successfully!");
-        } else {
-            System.out.println("Failed to delete product. Response Code: " + responseCode);
-        }
-
-        connection.disconnect();
-    }
-
-    public ObservableList getCountProducts(String type) throws IOException {
-        StringBuilder response = Connection("http://localhost:8080/" + type, "GET");
-
-        System.out.println(response.toString());
-        ObservableList<Product> products = null;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response.toString());
-            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Amount"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return products;
-    }
-
-    public ObservableList getCountArrivedProducts() throws IOException {
-        StringBuilder response = Connection("http://localhost:8080/arrivedProducts", "GET");
-
-        System.out.println(response.toString());
-        ObservableList<Product> products = null;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response.toString());
-            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Amount"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return products;
-    }
-
-    public String getTotalCountProducts(String type) throws IOException {
-        StringBuilder response = Connection("http://localhost:8080/analytics/" + type, "GET");
-        Product product = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(response.toString());
-        product = jsonAdapter.jsonToObject(rootNode, ProductTotalCount.class);
-        return product.toString();
     }
 }

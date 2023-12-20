@@ -69,7 +69,7 @@ public class WarehouseTableView extends VBox {
         TableColumn<Product, String> productNameColumn = new TableColumn<>("Product Name");
         TableColumn<Product, Integer> productCountColumn = new TableColumn<>("Product Count");
 
-        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("productId"));
+        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         productCountColumn.setCellValueFactory(new PropertyValueFactory<>("count"));
 
