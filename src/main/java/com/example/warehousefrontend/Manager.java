@@ -161,6 +161,13 @@ public class Manager {
                     productList.add(product);
                 }
                 break;
+            case "Amount":
+                for (JsonNode productNode : rootNode) {
+                    Product product = jsonAdapter.jsonToObject(productNode, ProductNameIDCountDatePriceProductId.class);
+                    System.out.println(product);
+                    productList.add(product);
+                }
+                break;
         }
         return productList;
     }
@@ -240,5 +247,46 @@ public class Manager {
         }
 
         connection.disconnect();
+    }
+
+    public ObservableList getCountProducts(String type) throws IOException {
+        StringBuilder response = Connection("http://localhost:8080/" + type, "GET");
+
+        System.out.println(response.toString());
+        ObservableList<Product> products = null;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.toString());
+            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Amount"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    public ObservableList getCountArrivedProducts() throws IOException {
+        StringBuilder response = Connection("http://localhost:8080/arrivedProducts", "GET");
+
+        System.out.println(response.toString());
+        ObservableList<Product> products = null;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.toString());
+            products = FXCollections.observableArrayList(JsonConverter(rootNode, "Amount"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    public String getTotalCountProducts(String type) throws IOException {
+        StringBuilder response = Connection("http://localhost:8080/analytics/" + type, "GET");
+        Product product = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(response.toString());
+        product = jsonAdapter.jsonToObject(rootNode, ProductTotalCount.class);
+        return product.toString();
     }
 }

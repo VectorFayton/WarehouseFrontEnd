@@ -24,7 +24,7 @@ import java.util.Map;
 public class GraphicsView extends VBox {
     private TableView<Product> tableView;
     Manager manager = new Manager();
-    ObservableList<Product> products = manager.getAllProducts();
+    ObservableList<Product> products = manager.getCountProducts("deadProducts");
     public GraphicsView() throws IOException {
         tableView = new TableView<>();
         tableView.setItems(products);
@@ -41,6 +41,8 @@ public class GraphicsView extends VBox {
 
         Label countDeathLabel = new Label("Amount of seized products:");
         Label countArrivedLabel = new Label("Amount of arrived products:");
+        Label statusTable = new Label("Seized products");
+        statusTable.setStyle("-fx-font: 24 arial;");
 
 
         Button countDeathButton = new Button("Show seized products");
@@ -51,7 +53,9 @@ public class GraphicsView extends VBox {
 
         countDeathButton.setOnAction(e -> {
             try {
-                products = manager.sortProduct("asc");
+                statusTable.setText("Seized products");
+                products = manager.getCountProducts("deadProducts");
+                countDeathField.setText(manager.getTotalCountProducts("amountDead"));
                 tableView.setItems(products);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -59,29 +63,35 @@ public class GraphicsView extends VBox {
         });
         countArrivedButton.setOnAction(e -> {
             try {
-                products = manager.sortProduct("desc");
+                statusTable.setText("Arrived products");
+                products = manager.getCountProducts("arrivedProducts");
+                countArrivedField.setText(manager.getTotalCountProducts("amountArrive"));
                 tableView.setItems(products);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
 
-        countDeathField.setText("1000");
+        countDeathField.setText(manager.getTotalCountProducts("amountDead"));
         countDeathField.setEditable(false);
-        countArrivedField.setText("1000");
+        countArrivedField.setText(manager.getTotalCountProducts("amountArrive"));
         countArrivedField.setEditable(false);
 
+        TableColumn<Product, Integer> idColumn = new TableColumn<>("ID");
         TableColumn<Product, Integer> productIdColumn = new TableColumn<>("Product ID");
         TableColumn<Product, String> productNameColumn = new TableColumn<>("Product Name");
+        TableColumn<Product, Integer> productCountColumn = new TableColumn<>("Product Count");
         TableColumn<Product, Double> productPriceColumn = new TableColumn<>("Product Price");
-        TableColumn<Product, String> productCategoryColumn = new TableColumn<>("Category ID");
+        TableColumn<Product, String> productDateColumn = new TableColumn<>("Date");
 
-        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("productId"));
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        productCountColumn.setCellValueFactory(new PropertyValueFactory<>("count"));
         productPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-        productCategoryColumn.setCellValueFactory(new PropertyValueFactory<>("categoryId"));
+        productDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
 
-        tableView.getColumns().addAll(productIdColumn, productNameColumn, productPriceColumn, productCategoryColumn);
+        tableView.getColumns().addAll(idColumn, productIdColumn, productNameColumn, productCountColumn, productPriceColumn, productDateColumn);
 
         tableView.setItems(products);
 
@@ -90,7 +100,7 @@ public class GraphicsView extends VBox {
         grid.addRow(2, countDeathButton, countArrivedButton);
 
 
-        getChildren().add(searchGrid);
+        getChildren().add(statusTable);
         getChildren().add(tableView);
         getChildren().add(grid);
     }

@@ -51,7 +51,7 @@ public class ProductNameIDCountDatePriceProductId implements Product{
     public void setProductId(@JsonProperty("productId") int productId) {
         this.productId = productId;
     }
-    public ProductNameIDCountDatePriceProductId(String name, int id, int count, String date, double price, int productId) {
+    public ProductNameIDCountDatePriceProductId(@JsonProperty("name") String name, @JsonProperty("id") int id, @JsonProperty("count") int count, @JsonProperty("date") String date, @JsonProperty("price") double price, @JsonProperty("productId") int productId) {
         this.name = name;
         this.id = id;
         this.count = count;
