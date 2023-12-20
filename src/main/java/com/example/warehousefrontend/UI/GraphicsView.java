@@ -1,6 +1,13 @@
 package com.example.warehousefrontend.UI;
 
-import javafx.scene.control.Button;
+import com.example.warehousefrontend.Manager;
+import com.example.warehousefrontend.varianceOfProduct.Product;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -15,77 +22,77 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GraphicsView extends VBox {
-    private static final String serverURL = "http://localhost:8080/warehouse/getAllProducts";
-    URL url;
-    HttpURLConnection httpURLConnection;
-    OutputStream outputStream = null;
-    InputStreamReader inputStreamReader = null;
-    BufferedReader bufferedReader = null;
+    private TableView<Product> tableView;
+    Manager manager = new Manager();
+    ObservableList<Product> products = manager.getAllProducts();
+    public GraphicsView() throws IOException {
+        tableView = new TableView<>();
+        tableView.setItems(products);
 
-    public GraphicsView() {
-        Button getBtn = new Button("GET запрос");
-//            getBtn.setOnAction(e -> sendHttpRequest(BASE_URL, HttpRequest.Method.GET));
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20));
 
-        Button postBtn = new Button("POST запрос");
+        GridPane searchGrid = new GridPane();
+        grid.setHgap(3);
+        grid.setVgap(4);
+        grid.setPadding(new Insets(5));
+
+        Label countDeathLabel = new Label("Amount of seized products:");
+        Label countArrivedLabel = new Label("Amount of arrived products:");
 
 
-        Button putBtn = new Button("PUT запрос");
-//            putBtn.setOnAction(e -> sendHttpRequest(BASE_URL, HttpRequest.Method.PUT));
+        Button countDeathButton = new Button("Show seized products");
+        Button countArrivedButton = new Button("Show arrived products");
 
-        Button deleteBtn = new Button("DELETE запрос");
-//            deleteBtn.setOnAction(e -> sendHttpRequest(BASE_URL, HttpRequest.Method.DELETE));
+        TextField countDeathField = new TextField();
+        TextField countArrivedField = new TextField();
 
-        getChildren().addAll(getBtn, postBtn, putBtn, deleteBtn);
-    }
-    private void sendHttpRequest(String apiUrl) throws IOException {
-        Map<String, String> post = new HashMap<>();
-        post.put("user", "Bob");
-        post.put("password", "123");
-
-        StringBuilder stringBuilder = new StringBuilder();
-        byte[] out = post.toString().getBytes();
-
-        try {
-            url = new URL(serverURL);
-            httpURLConnection = (HttpsURLConnection) url.openConnection();
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setDoInput(true);
-
-            httpURLConnection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            httpURLConnection.addRequestProperty("Content-Type", "application/x-www-form-url-urlencoded");
-
-            httpURLConnection.setConnectTimeout(200);
-            httpURLConnection.setReadTimeout(200);
-            httpURLConnection.connect();
-
+        countDeathButton.setOnAction(e -> {
             try {
-                outputStream =httpURLConnection.getOutputStream();
-                outputStream.write(out);
-            } catch (Exception e) {
-                System.err.print(e.getMessage());
+                products = manager.sortProduct("asc");
+                tableView.setItems(products);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
-            if (HttpURLConnection.HTTP_OK == httpURLConnection.getResponseCode()) {
-                inputStreamReader = new InputStreamReader(httpURLConnection.getInputStream());
-                bufferedReader = new BufferedReader(inputStreamReader);
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.print(e.getMessage());
-        } finally {
+        });
+        countArrivedButton.setOnAction(e -> {
             try {
-                inputStreamReader.close();
-            } catch(IOException e){
-                e.printStackTrace();
+                products = manager.sortProduct("desc");
+                tableView.setItems(products);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
-            bufferedReader.close();
-            outputStream.close();
-        }
+        });
+
+        countDeathField.setText("1000");
+        countDeathField.setEditable(false);
+        countArrivedField.setText("1000");
+        countArrivedField.setEditable(false);
+
+        TableColumn<Product, Integer> productIdColumn = new TableColumn<>("Product ID");
+        TableColumn<Product, String> productNameColumn = new TableColumn<>("Product Name");
+        TableColumn<Product, Double> productPriceColumn = new TableColumn<>("Product Price");
+        TableColumn<Product, String> productCategoryColumn = new TableColumn<>("Category ID");
+
+        productIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        productNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        productPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        productCategoryColumn.setCellValueFactory(new PropertyValueFactory<>("categoryId"));
+
+        tableView.getColumns().addAll(productIdColumn, productNameColumn, productPriceColumn, productCategoryColumn);
+
+        tableView.setItems(products);
+
+        grid.addRow(0, countDeathLabel, countDeathField);
+        grid.addRow(1, countArrivedLabel, countArrivedField);
+        grid.addRow(2, countDeathButton, countArrivedButton);
+
+
+        getChildren().add(searchGrid);
+        getChildren().add(tableView);
+        getChildren().add(grid);
     }
 }
 

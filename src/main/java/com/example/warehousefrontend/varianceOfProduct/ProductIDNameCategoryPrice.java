@@ -11,46 +11,36 @@ public class ProductIDNameCategoryPrice implements Product {
     private int categoryId;
     @JsonProperty("price")
     private double price;
-
     public int getId() {
         return id;
     }
-
     public void setId(@JsonProperty("id") int id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(@JsonProperty("name") String name) {
         this.name = name;
     }
-
     public int getCategoryId() {
         return categoryId;
     }
-
     public void setCategoryId(@JsonProperty("categoryId") int category_id) {
         this.categoryId = category_id;
     }
-
     public double getPrice() {
         return price;
     }
-
     public void setPrice(@JsonProperty("price") int price) {
         this.price = price;
     }
-
     public ProductIDNameCategoryPrice(@JsonProperty("id") int id, @JsonProperty("name") String name, @JsonProperty("price") double price, @JsonProperty("categoryId") int categoryID) {
         this.id = id;
         this.name = name;
         this.categoryId = categoryID;
         this.price = price;
     }
-
     @Override
     public Product clone() {
         return new ProductIDNameCategoryPrice(id, name, price, categoryId);
